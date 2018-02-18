@@ -9,9 +9,8 @@ import (
 )
 
 const (
-	defaultPort   = 8009
-	defaultLang   = "en"
-	defaultAccent = "us"
+	defaultPort = 8009
+	defaultLang = "en"
 )
 
 // Config has setting parameters for Client.
@@ -92,5 +91,5 @@ func (c Config) GetAccent() string {
 	if accent != "" {
 		return accent
 	}
-	return defaultAccent
+	return ""
 }

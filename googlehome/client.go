@@ -4,23 +4,19 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"net/url"
 
 	"github.com/barnybug/go-cast"
 	"github.com/barnybug/go-cast/controllers"
-)
-
-const (
-	defaultAPIURL = "https://translate.google.com/translate_tts"
+	"github.com/evalphobia/google-tts-go/googletts"
 )
 
 // Client is Google Home client.
 type Client struct {
 	ctx    context.Context
-	client *cast.Client
 	lang   string
 	accent string
 	ip     net.IP
+	port   int
 }
 
 // NewClient creates Client from environment values.
@@ -44,8 +40,8 @@ func NewClientWithConfig(conf Config) (*Client, error) {
 	}
 	return &Client{
 		ctx:    ctx,
-		client: client,
 		ip:     host,
+		port:   port,
 		lang:   conf.GetLang(),
 		accent: conf.GetAccent(),
 	}, nil
@@ -76,46 +72,90 @@ func (c *Client) Notify(text string, language ...string) error {
 		lang = fmt.Sprintf("%s-%s", lang, c.accent)
 	}
 
-	params := &url.Values{}
-	params.Set("ie", "UTF-8")
-	params.Set("client", "google-home")
-	params.Set("tl", lang)
-	params.Set("q", text)
-
-	url := fmt.Sprintf("%s?%s", defaultAPIURL, params.Encode())
+	url, err := googletts.GetTTSURL(text, lang)
+	if err != nil {
+		return err
+	}
 	return c.Play(url)
 }
 
 // Play make Google Home play music or sound.
 func (c *Client) Play(url string) error {
-	media, err := c.client.Media(c.ctx)
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+	err := client.Connect(c.ctx)
 	if err != nil {
 		return err
 	}
-	contentType := "audio/mpeg"
+	client.Receiver().QuitApp(c.ctx)
+
+	media, err := client.Media(c.ctx)
+	if err != nil {
+		return err
+	}
+
 	item := controllers.MediaItem{
 		ContentId:   url,
 		StreamType:  "BUFFERED",
-		ContentType: contentType,
+		ContentType: "audio/mpeg",
 	}
 	_, err = media.LoadMedia(c.ctx, item, 0, true, map[string]interface{}{})
 	return err
 }
 
+// GetVolume gets volume.
+func (c *Client) GetVolume() (volume float64, err error) {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+	err = client.Connect(c.ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	vol, err := client.Receiver().GetVolume(c.ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return *vol.Level, nil
+}
+
+// SetVolume sets volume. volume must be 0.0 ~ 1.0.
+func (c *Client) SetVolume(volume float64) error {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+	err := client.Connect(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Receiver().SetVolume(c.ctx, &controllers.Volume{Level: &volume})
+	return err
+}
+
+// QuitApp stops recveiver application.
+func (c *Client) QuitApp() error {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+
+	receiver := client.Receiver()
+	_, err := receiver.QuitApp(c.ctx)
+	return err
+}
+
 // StopMedia make Google Home stop music or sound.
 func (c *Client) StopMedia() error {
-	if !c.client.IsPlaying(c.ctx) {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+
+	if !client.IsPlaying(c.ctx) {
 		return nil
 	}
-	media, err := c.client.Media(c.ctx)
+
+	media, err := client.Media(c.ctx)
 	if err != nil {
 		return err
 	}
 	_, err = media.Stop(c.ctx)
 	return err
-}
-
-// Close closes Google Home client.
-func (c *Client) Close() {
-	c.client.Close()
 }
