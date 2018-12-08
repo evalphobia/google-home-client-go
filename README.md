@@ -40,7 +40,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer cli.Close()
 
 	// Speak text on Google Home.
 	cli.Notify("Hello")
@@ -51,7 +50,24 @@ func main() {
 
 	// Or set language in Notify()
 	cli.Notify("你好、Google。", "zh")
+
+	//Play Audio
+	cli.Play("http://127.0.0.1/night.mp3")
+
+	//Stop Audio
+	cli.StopMedia()
+
+	//Min of 0.0 Max of 1.0 (Must be of type Float)
+	cli.SetVolume(0.5)
+
+	//Get Volume Google Home is running at
+	cli.GetVolume()
+
+	//Kills the running Application (Disconnects from Google Home)
+	cli.QuitApp()
+
 }
+
 ```
 
 ## Environment variables
