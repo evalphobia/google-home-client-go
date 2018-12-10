@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/url"
 
 	"github.com/barnybug/go-cast"
 	"github.com/barnybug/go-cast/controllers"
-	"github.com/evalphobia/google-tts-go/googletts"
 )
 
 // Client is Google Home client.
@@ -72,11 +72,11 @@ func (c *Client) Notify(text string, language ...string) error {
 		lang = fmt.Sprintf("%s-%s", lang, c.accent)
 	}
 
-	url, err := googletts.GetTTSURL(text, lang)
+	url, err := tts(text, lang)
 	if err != nil {
 		return err
 	}
-	return c.Play(url)
+	return c.Play(url.String())
 }
 
 // Play make Google Home play music or sound.
@@ -158,4 +158,23 @@ func (c *Client) StopMedia() error {
 	}
 	_, err = media.Stop(c.ctx)
 	return err
+}
+
+func (c *Client) PauseMedia() error {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+	
+	media, err := client.Media(c.ctx)
+	if err != nil {
+		return err
+	}
+	
+	_, err = media.Pause(c.ctx)
+		return err
+
+}
+
+func tts(text, lang string) (*url.URL, error) {
+	base := "https://translate.google.com/translate_tts?client=tw-ob&ie=UTF-8&q=%s&tl=%s"
+	return url.Parse(fmt.Sprintf(base, url.QueryEscape(text), url.QueryEscape(lang)))
 }
