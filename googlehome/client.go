@@ -159,3 +159,16 @@ func (c *Client) StopMedia() error {
 	_, err = media.Stop(c.ctx)
 	return err
 }
+
+func (c *Client) PauseMedia() error {
+	client := cast.NewClient(c.ip, c.port)
+	defer client.Close()
+	
+	media, err := client.Media(c.ctx)
+	if err != nil {
+		return err
+	}
+	
+	_, err = media.Pause(c.ctx)
+		return err
+ }
