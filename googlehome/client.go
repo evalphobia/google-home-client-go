@@ -114,8 +114,8 @@ func (c *Client) GetVolume() (volume float64, err error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
 		client.Close()
-		if err := recover(); err != nil {
-			err = fmt.Errorf("Panic occurs on GetVolume [%w]", err)
+		if e := recover(); e != nil {
+			err = fmt.Errorf("Panic occurs on GetVolume [%w]", e)
 		}
 	}()
 
