@@ -80,9 +80,15 @@ func (c *Client) Notify(text string, language ...string) error {
 }
 
 // Play make Google Home play music or sound.
-func (c *Client) Play(url string) error {
+func (c *Client) Play(url string) (e error) {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
+	defer func() {
+		client.Close()
+		if err := recover(); err != nil {
+			e = fmt.Errorf("Panic occurs on Play [%w]", err)
+		}
+	}()
+
 	err := client.Connect(c.ctx)
 	if err != nil {
 		return err
@@ -106,7 +112,13 @@ func (c *Client) Play(url string) error {
 // GetVolume gets volume.
 func (c *Client) GetVolume() (volume float64, err error) {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
+	defer func() {
+		client.Close()
+		if err := recover(); err != nil {
+			err = fmt.Errorf("Panic occurs on GetVolume [%w]", err)
+		}
+	}()
+
 	err = client.Connect(c.ctx)
 	if err != nil {
 		return 0, err
@@ -121,9 +133,15 @@ func (c *Client) GetVolume() (volume float64, err error) {
 }
 
 // SetVolume sets volume. volume must be 0.0 ~ 1.0.
-func (c *Client) SetVolume(volume float64) error {
+func (c *Client) SetVolume(volume float64) (e error) {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
+	defer func() {
+		client.Close()
+		if err := recover(); err != nil {
+			e = fmt.Errorf("Panic occurs on SetVolume [%w]", err)
+		}
+	}()
+
 	err := client.Connect(c.ctx)
 	if err != nil {
 		return err
@@ -134,9 +152,14 @@ func (c *Client) SetVolume(volume float64) error {
 }
 
 // QuitApp stops recveiver application.
-func (c *Client) QuitApp() error {
+func (c *Client) QuitApp() (e error) {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
+	defer func() {
+		client.Close()
+		if err := recover(); err != nil {
+			e = fmt.Errorf("Panic occurs on QuitApp [%w]", err)
+		}
+	}()
 
 	receiver := client.Receiver()
 	_, err := receiver.QuitApp(c.ctx)
@@ -144,9 +167,14 @@ func (c *Client) QuitApp() error {
 }
 
 // StopMedia make Google Home stop music or sound.
-func (c *Client) StopMedia() error {
+func (c *Client) StopMedia() (e error) {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
+	defer func() {
+		client.Close()
+		if err := recover(); err != nil {
+			e = fmt.Errorf("Panic occurs on StopMedia [%w]", err)
+		}
+	}()
 
 	if !client.IsPlaying(c.ctx) {
 		return nil
