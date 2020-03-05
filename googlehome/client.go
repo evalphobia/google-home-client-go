@@ -83,7 +83,6 @@ func (c *Client) Notify(text string, language ...string) error {
 func (c *Client) Play(url string) (e error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
-		client.Close()
 		if err := recover(); err != nil {
 			e = fmt.Errorf("Panic occurs on Play [%w]", err)
 		}
@@ -93,6 +92,7 @@ func (c *Client) Play(url string) (e error) {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 	client.Receiver().QuitApp(c.ctx)
 
 	media, err := client.Media(c.ctx)
@@ -113,7 +113,6 @@ func (c *Client) Play(url string) (e error) {
 func (c *Client) GetVolume() (volume float64, err error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
-		client.Close()
 		if e := recover(); e != nil {
 			err = fmt.Errorf("Panic occurs on GetVolume [%w]", e)
 		}
@@ -123,6 +122,7 @@ func (c *Client) GetVolume() (volume float64, err error) {
 	if err != nil {
 		return 0, err
 	}
+	defer client.Close()
 
 	vol, err := client.Receiver().GetVolume(c.ctx)
 	if err != nil {
@@ -136,7 +136,6 @@ func (c *Client) GetVolume() (volume float64, err error) {
 func (c *Client) SetVolume(volume float64) (e error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
-		client.Close()
 		if err := recover(); err != nil {
 			e = fmt.Errorf("Panic occurs on SetVolume [%w]", err)
 		}
@@ -146,6 +145,7 @@ func (c *Client) SetVolume(volume float64) (e error) {
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	_, err = client.Receiver().SetVolume(c.ctx, &controllers.Volume{Level: &volume})
 	return err
@@ -155,7 +155,6 @@ func (c *Client) SetVolume(volume float64) (e error) {
 func (c *Client) QuitApp() (e error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
-		client.Close()
 		if err := recover(); err != nil {
 			e = fmt.Errorf("Panic occurs on QuitApp [%w]", err)
 		}
@@ -170,7 +169,6 @@ func (c *Client) QuitApp() (e error) {
 func (c *Client) StopMedia() (e error) {
 	client := cast.NewClient(c.ip, c.port)
 	defer func() {
-		client.Close()
 		if err := recover(); err != nil {
 			e = fmt.Errorf("Panic occurs on StopMedia [%w]", err)
 		}
@@ -190,13 +188,12 @@ func (c *Client) StopMedia() (e error) {
 
 func (c *Client) PauseMedia() error {
 	client := cast.NewClient(c.ip, c.port)
-	defer client.Close()
-	
+
 	media, err := client.Media(c.ctx)
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = media.Pause(c.ctx)
-		return err
- }
+	return err
+}
