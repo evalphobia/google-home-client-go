@@ -2,6 +2,7 @@ Google Home client for golang
 ----
 
 [![GoDoc][1]][2] [![License: MIT][3]][4] [![Release][5]][6] [![Build Status][7]][8] [![Codecov Coverage][11]][12] [![Go Report Card][13]][14] [![Downloads][15]][16]
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fevalphobia%2Fgoogle-home-client-go.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fevalphobia%2Fgoogle-home-client-go?ref=badge_shield)
 
 [1]: https://godoc.org/github.com/evalphobia/google-home-client-go?status.svg
 [2]: https://godoc.org/github.com/evalphobia/google-home-client-go
@@ -85,3 +86,7 @@ func main() {
 This library is based on [github.com/kunihiko-t/google-home-notifier-go](https://github.com/kunihiko-t/google-home-notifier-go) by [kunihiko-t](https://github.com/kunihiko-t/) and heavily depends on [github.com/barnybug/go-cast](https://github.com/barnybug/go-cast).
 
 This port version supports environment value config and some feature.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fevalphobia%2Fgoogle-home-client-go.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fevalphobia%2Fgoogle-home-client-go?ref=badge_large)
